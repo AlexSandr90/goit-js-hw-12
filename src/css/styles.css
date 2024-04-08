@@ -53,7 +53,8 @@ body {
 }
 
 
-.submit {
+.submit,
+.load-more {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -66,7 +67,12 @@ body {
   border: none;
 }
 
-.submit:hover {
+.load-more {
+  margin-top: 20px;
+}
+
+.submit:hover,
+.load-more:hover {
   background-color: #6C8CFF;
 }
 
@@ -92,7 +98,7 @@ body {
   gap: 24px;
   list-style-type: none;
   justify-content: center;
-  position: absolute;
+  position: relative;
   top: 100%;
   left: 50%;
   transform: translateX(-50%);

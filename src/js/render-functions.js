@@ -1,4 +1,4 @@
-export const renderImages = (blockToinsertedHtml, imagesArr) => {
+export const renderImages = (blockToInsertedHtml, imagesArr = []) => {
   const markup = imagesArr
     .map(
       ({
@@ -39,5 +39,5 @@ export const renderImages = (blockToinsertedHtml, imagesArr) => {
     )
     .join('');
 
-  blockToinsertedHtml.insertAdjacentHTML('beforeend', markup);
+  blockToInsertedHtml.insertAdjacentHTML('beforeend', markup);
 };
