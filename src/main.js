@@ -17,7 +17,7 @@ const loadMoreButton = document.getElementById('load-more');
 let images = [];
 let formInput = '';
 let page = 1;
-let perPage = 40;
+let perPage = 15;
 let maxPages;
 
 const lightboxOptions = {
