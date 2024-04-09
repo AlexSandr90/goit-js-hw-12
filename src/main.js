@@ -19,6 +19,7 @@ let loadMoreButton;
 let images = [];
 let formInput = '';
 let page = 1;
+let perPage = 15;
 let maxPages;
 
 const lightboxOptions = {
@@ -93,7 +94,7 @@ const handleSubmit = async event => {
       renderImages(imgBlock, images);
 
       lightbox.refresh();
-      maxPages = Math.ceil(imagesData.total / 20);
+      maxPages = Math.ceil(imagesData.total / perPage);
       if (!loadMoreButton) {
         gallerySection.insertAdjacentHTML('beforeend', loadMoreButtonHTML);
         loadMoreButton = document.getElementById('load-more');
