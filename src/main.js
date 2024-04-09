@@ -12,14 +12,12 @@ const gallerySection = document.querySelector(
   'section[class="gallery-section"]'
 );
 const loaderHtml = '<div id="loader" class="loader"></div>';
-const loadMoreButtonHTML =
-  '<button id="load-more" class="load-more" type="button">Load More</button>';
 const imgBlock = document.querySelector('ul[class="gallery"]');
-let loadMoreButton;
+const loadMoreButton = document.getElementById('load-more');
 let images = [];
 let formInput = '';
 let page = 1;
-let perPage = 15;
+let perPage = 40;
 let maxPages;
 
 const lightboxOptions = {
@@ -37,12 +35,30 @@ const toastErrorSettings = {
   backgroundColor: '#FF2E2E',
 };
 
+const erorrMessage = message => {
+  iziToast.error({
+    ...toastErrorSettings,
+    message,
+  });
+};
+
 const loadMore = async event => {
   console.log(event.target.textContent);
   try {
     if (page <= maxPages) {
+      if (page === maxPages) {
+        iziToast.info({
+          position: 'topRight',
+          messageColor: '#ffffff',
+          timeout: 5000,
+          radius: 15,
+          backgroundColor: 'lightblue',
+          message: `We're sorry, but you've reached the end of search results.`,
+        });
+        loadMoreButton.classList.replace('load-more', 'none');
+      }
       gallerySection.insertAdjacentHTML('beforebegin', loaderHtml);
-      const imagesData = await fetchImages(formInput, page);
+      const imagesData = await fetchImages(formInput, page, perPage);
 
       const loader = document.querySelector('#loader');
       if (loader) {
@@ -51,10 +67,10 @@ const loadMore = async event => {
       images = [...images, ...imagesData.hits];
       renderImages(imgBlock, images);
       lightbox.refresh();
-      console.log({page});
-      page += 1;
 
-      console.log({page});
+      page === maxPages ? (page = 1) : (page += 1);
+
+      console.log({ page });
     }
   } catch (error) {
     console.error(error);
@@ -65,23 +81,21 @@ const handleSubmit = async event => {
   event.preventDefault();
 
   images = [];
+  page = 1;
   imgBlock.textContent = '';
-
+  loadMoreButton.classList.replace('load-more', 'none');
   const form = event.target;
   const input = searchInput.value.trim();
   formInput = input;
 
   if (input === '') {
-    iziToast.error({
-      ...toastErrorSettings,
-      message: 'The request must not be empty!',
-    });
+    erorrMessage('The request must not be empty!');
     return;
   }
 
   try {
     gallerySection.insertAdjacentHTML('beforebegin', loaderHtml);
-    const imagesData = await fetchImages(input, page);
+    const imagesData = await fetchImages(input, page, perPage);
 
     const loader = document.querySelector('#loader');
     if (loader) {
@@ -95,18 +109,16 @@ const handleSubmit = async event => {
 
       lightbox.refresh();
       maxPages = Math.ceil(imagesData.total / perPage);
-      if (!loadMoreButton) {
-        gallerySection.insertAdjacentHTML('beforeend', loadMoreButtonHTML);
-        loadMoreButton = document.getElementById('load-more');
-        loadMoreButton.addEventListener('click', loadMore);
-      }
+
       page += 1;
+
+      if (page > 1) {
+        loadMoreButton.classList.replace('none', 'load-more');
+      }
     } else {
-      iziToast.error({
-        ...toastErrorSettings,
-        message:
-          'Sorry, there are no images matching your search query. Please, try again again!',
-      });
+      erorrMessage(
+        'Sorry, there are no images matching your search query. Please, try again again!'
+      );
     }
   } catch (error) {
     console.error('Error fetching images:', error);
@@ -116,3 +128,4 @@ const handleSubmit = async event => {
 };
 
 form.addEventListener('submit', handleSubmit);
+loadMoreButton.addEventListener('click', loadMore);
