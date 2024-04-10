@@ -27,34 +27,47 @@ const lightboxOptions = {
 
 const lightbox = new SimpleLightbox('ul.gallery a', lightboxOptions);
 
-const toastErrorSettings = {
+const toastSettings = {
   position: 'topRight',
   messageColor: '#ffffff',
   timeout: 5000,
   radius: 15,
-  backgroundColor: '#FF2E2E',
 };
 
 const erorrMessage = message => {
   iziToast.error({
-    ...toastErrorSettings,
+    ...toastSettings,
+    backgroundColor: '#FF2E2E',
     message,
   });
 };
 
-const loadMore = async event => {
-  console.log(event.target.textContent);
+const infoMessage = message => {
+  iziToast.info({
+    ...toastSettings,
+    backgroundColor: 'lightblue',
+    message,
+  });
+};
+
+const scrolledImages = height => {
+  const timeout = setTimeout(() => {
+    window.scrollBy({
+      top: height * 2,
+      left: 0,
+      behavior: 'smooth',
+    });
+    clearTimeout(timeout);
+  }, 1000);
+};
+
+const loadMore = async () => {
   try {
     if (page <= maxPages) {
       if (page === maxPages) {
-        iziToast.info({
-          position: 'topRight',
-          messageColor: '#ffffff',
-          timeout: 5000,
-          radius: 15,
-          backgroundColor: 'lightblue',
-          message: `We're sorry, but you've reached the end of search results.`,
-        });
+        infoMessage(
+          `We're sorry, but you've reached the end of search results.`
+        );
         loadMoreButton.classList.replace('load-more', 'none');
       }
       gallerySection.insertAdjacentHTML('beforebegin', loaderHtml);
@@ -66,11 +79,13 @@ const loadMore = async event => {
       }
       images = [...images, ...imagesData.hits];
       renderImages(imgBlock, images);
+
       lightbox.refresh();
 
       page === maxPages ? (page = 1) : (page += 1);
-
-      console.log({ page });
+      const galleryItem = document.querySelector('.gallery-item');
+      const galleryItemSize = galleryItem.getBoundingClientRect();
+      scrolledImages(galleryItemSize.height);
     }
   } catch (error) {
     console.error(error);
@@ -109,7 +124,6 @@ const handleSubmit = async event => {
 
       lightbox.refresh();
       maxPages = Math.ceil(imagesData.total / perPage);
-
       page += 1;
 
       if (page > 1) {
